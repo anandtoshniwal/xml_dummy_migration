@@ -1,0 +1,33 @@
+id: migration_activity_xml_categories
+label: migrate categories
+migration_group: activity
+
+source:
+  plugin: url
+  data_parser_plugin: xml
+  item_selector: /categories/category
+  fields:
+      -
+        name: tid
+        label: 'Term Id'
+        selector: id
+      -
+        name: name
+        label: 'Term name'
+        selector: name
+
+  ids:
+    tid:
+      type: string
+  urls: 'source/categories.xml'
+
+destination:
+  plugin: entity:taxonomy_term
+
+process:
+  name: name
+  vid:
+    plugin: default_value
+    default_value: article_category
+
+migration_dependencies: {}

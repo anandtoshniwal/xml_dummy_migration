@@ -1,0 +1,95 @@
+# This migration shows importing from a single XML file.
+dependencies:
+  config:
+    - migrate_plus.migration.migration_activity_xml_categories
+    - migrate_plus.migration.migration_activity_xml_user
+
+id: migration_activity_xml_node
+label: Article content
+migration_group: activity
+source:
+  plugin: url
+  urls: "source/articles.xml"
+  data_fetcher_plugin: http
+  data_parser_plugin: xml
+
+  item_selector: /articles/article
+  fields:
+    -
+      name: id
+      label: 'Unique Id'
+      selector: id
+    -
+      name: user_uid
+      label: 'user uid'
+      selector: user
+    -
+      name: node_title
+      label: 'Page Title'
+      selector: title
+    -
+      name: node_body
+      label: 'node description'
+      selector: description
+    -
+      name: article_category
+      label: 'Article category'
+      selector: categories/category
+    -
+      name: tags
+      label: 'Article tags'
+      selector: tags
+    -
+      name: date_created
+      label: 'Date Created'
+      selector: created
+  ids:
+    id:
+      type: string
+process:
+  uid:
+    plugin: migration_lookup
+    migration: migration_activity_xml_user
+    source: user_uid
+
+  title: node_title
+  body: node_body
+
+  field_tags:
+    -
+      plugin: explode
+      source: tags
+      delimiter: ,
+    -
+      plugin: entity_generate
+      value_key: name
+      bundle_key: vid
+      bundle: tags
+      entity_type: taxonomy_term
+      ignore_case: true
+
+  field_article_category/target_id:
+    plugin: migration
+    migration: migration_activity_xml_categories
+    source: article_category
+
+  created:
+    plugin: callback
+    callable: strtotime
+    source: date_created
+
+  status:
+    plugin: default_value
+    default_value: 1
+
+  type:
+    plugin: default_value
+    default_value: article
+
+destination:
+  plugin: entity:node
+
+migration_dependencies:
+  required:
+    - migration_activity_xml_categories
+    - migration_activity_xml_user

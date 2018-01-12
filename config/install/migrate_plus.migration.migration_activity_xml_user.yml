@@ -1,0 +1,40 @@
+langcode: en
+status: true
+
+id: migration_activity_xml_user
+label: 'User migration from xml file'
+migration_group: activity
+
+source:
+  plugin: url
+  data_fetcher_plugin: http
+  data_parser_plugin: xml
+  urls:
+    - source/users.xml
+  item_selector: '/users/user'
+  ids:
+    user_id:
+      type: integer
+  fields:
+    -
+      name: user_id
+      label: 'ID of the user'
+      selector: 'id'
+    -
+      name: user_name
+      label: 'Name of the user'
+      selector: 'name'
+    -
+      name: user_email
+      label: 'Email of the user'
+      selector: 'email'
+process:
+  name: user_name
+  mail: user_email
+  status:
+    plugin: default_value
+    default_value: 1
+destination:
+  plugin: 'entity:user'
+template: null
+migration_dependencies: {  }
